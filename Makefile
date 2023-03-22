@@ -5,49 +5,51 @@
 #                                                     +:+ +:+         +:+      #
 #    By: dcologgi <dcologgi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/01/25 09:51:17 by cpascucc          #+#    #+#              #
-#    Updated: 2023/02/20 09:43:42 by dcologgi         ###   ########.fr        #
+#    Created: 2023/03/22 09:01:51 by dcologgi          #+#    #+#              #
+#    Updated: 2023/03/22 09:25:35 by dcologgi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = libft.a
+# Variabili di compilazione
+NAME = lib/liblibft.a
+CC = gcc
+RM = rm -rf
+CFLAGS = -Wall -Werror -Wextra
 
-SRCS = ft_isdigit.c ft_memset.c ft_strjoin.c ft_strtrim.c ft_isprint.c \
-ft_putchar_fd.c ft_strlcat.c ft_substr.c ft_atoi.c ft_itoa.c ft_putendl_fd.c \
-ft_strlcpy.c ft_tolower.c ft_bzero.c ft_putnbr_fd.c ft_strlen.c \
-ft_toupper.c ft_calloc.c ft_memchr.c ft_putstr_fd.c ft_strmapi.c ft_isalnum.c \
-ft_memcmp.c ft_split.c ft_strncmp.c ft_isalpha.c ft_memcpy.c ft_strchr.c\
-ft_strnstr.c ft_isascii.c ft_memmove.c ft_strdup.c ft_strrchr.c ft_striteri.c \
-get_next_line.c get_next_line_utils.c ft_printf_hex.c ft_printf_int.c \
-ft_printf_ptr.c ft_printf_uint.c ft_printf_utils.c ft_printf.c \
+# Directories
+SOURCES_DIR = src
+OBJECTS_DIR = obj
+INCLUDES_DIR = includes
+LIB_DIR = lib
 
-BONUS = ft_lstadd_back.c ft_lstadd_front.c ft_lstclear.c ft_lstdelone.c \
-		ft_lstiter.c ft_lstlast.c ft_lstmap.c ft_lstnew.c ft_lstsize.c \
+# Sources & objects
+SOURCES = ${wildcard ${SOURCES_DIR}/*.c}
+OBJECTS = ${patsubst ${SOURCES_DIR}/%.c, ${OBJECTS_DIR}/%.o, ${SOURCES}}
 
-OBJS = ${SRCS:.c=.o}
+all : ${OBJECTS_DIR} ${NAME}
+	${CC} -o ft_libft -L./lib/ -llibft
 
-OBJSBONUS = ${BONUS:.c=.o}
+# Crea directory per gli oggetti
+${OBJECTS_DIR} :
+	mkdir -p ${OBJECTS_DIR}
 
-CC		= gcc
-RM		= rm -f
+# Regola per la library
+${NAME} : ${OBJECTS}
+	@if [ ! -d ${LIB_DIR} ]; then mkdir -p ${LIB_DIR}; fi
+	ar rcs ${NAME} ${OBJECTS}
 
-CFLAGS = -Wall -Wextra -Werror
+# Compilazione oggetti
+${OBJECTS_DIR}/%.o: ${SOURCES_DIR}/%.c
+	${CC} -c -o $@ $< ${CFLAGS} -I${INCLUDES_DIR}
 
-.c.o:
-		${CC} ${CFLAGS} -g -c $< -o ${<:.c=.o}
+clean :
+	${RM} ${OBJECTS_DIR}
 
-$(NAME): ${OBJS}
-		ar rcs ${NAME} ${OBJS}
+fclean :
+	${RM} ${NAME} libft
+	@if [ -d ${OBJECTS_DIR} ]; then ${RM} ${OBJECTS_DIR}; fi
 
-bonus:	${OBJSBONUS}
-		ar rcs ${NAME} ${OBJSBONUS}
-
-all:	${NAME}
-
-clean:
-		${RM} ${OBJS} ${OBJSBONUS}
-
-fclean:	clean
-		${RM} ${NAME}
-
-re:		fclean all
+re : clean
+	@if [ -d ${OBJECTS_DIR} ]; then ${RM} ${OBJECTS_DIR}; fi
+	mkdir -p ${OBJECTS_DIR}
+	${MAKE} all
